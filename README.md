@@ -35,15 +35,15 @@
 
 ## Features
 
-1- Sendgrid SMTP: for receiving register confirmation email and reset password.
-2- Redis: for caching the data.
-3- Winston: for logging info.
-4- Docker: for scaling the application.
-5- JWT: for authentication.
-6- Fully customizable error handlers.
-7- Cloudinary: for image processing and uploading.
-8- Joi: for data validation
-9- SocketIO: for real-time messages
+- Sendgrid SMTP: for receiving register confirmation email and reset password.
+- Redis: for caching the data.
+- Winston: for logging info.
+- Docker: for scaling the application.
+- JWT: for authentication.
+- Fully customizable error handlers.
+- Cloudinary: for image processing and uploading.
+- Joi: for data validation
+- SocketIO: for real-time messages
 
 Built with:
 
