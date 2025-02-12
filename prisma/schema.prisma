@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  phoneNumber String
+  role String @default("USER")
+  password String
+  isEmailVerified Boolean @default(false)
+  emailVerificationToken String?
+  emailTokenExpiration DateTime?
+  tokens Token[]
+  followingRelations Followers[] @relation("Following")
+  followerRelations Followers[] @relation("Followers")
+  posts Post[]
+  reactions Reaction[]
+  comments Comment[]
+  messages Message[]
+  chatParticipants ChatParticipants[]
+  createdAt DateTime @default(now())
+}
+
+model Token {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  refreshToken String
+  ip String
+  userAgent String
+  isValid Boolean
+  createdAt DateTime @default(now())
+}
+
+model Followers {
+  id Int @id @default(autoincrement())
+  follower User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  content String
+  image String?
+  author User @relation(fields: [authorId], references: [id])
+  authorId String
+  reactions Reaction[]
+  comments Comment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reaction {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  post Post @relation(fields: [postId], references: [id])
+  postId Int
+  type ReactionTypes @default(LIKE)
+  @@unique([userId, postId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ReactionTypes {
+  LIKE
+  DISLIKE
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  content String
+  author User @relation(fields: [authorId], references: [id])
+  authorId String
+  post Post @relation(fields: [postId], references: [id])
+  postId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id Int @id @default(autoincrement())
+  participants ChatParticipants[]
+  messages Message[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChatParticipants {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+  joinedAt DateTime @default(now())
+  @@unique([userId, chatId])
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  content String
+  media String?
+  sender User @relation(fields: [senderId], references: [id])
+  senderId String
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+  createdAt DateTime @default(now())
+}
